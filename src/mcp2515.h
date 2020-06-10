@@ -10,7 +10,18 @@
 #include <linux/types.h>
 #include <linux/spi/spidev.h>
 
+// TX Buffer Control REG
+#define TXB0CTRL 0x30
+#define TXB1CTRL 0x40
+#define TXB2CTRL 0x50
+
+#define TXRTSCTRL 0x0D
+
 typedef struct mcp2515_dev mcp2515_dev;
+
+// spi set
+static uint8_t mode = 3;
+static uint8_t bits = 8;
 
 // defined mcp2515 feature
 typedef struct mcp2515_dev
@@ -26,5 +37,6 @@ mcp2515_dev* new_mcp2515_dev(char *,uint8_t,uint32_t);
 // open and initial mcp2515
 int mcp2515_initial(mcp2515_dev*);
 
-// error handler
+// mcp2515 address
+
 #endif
