@@ -161,7 +161,6 @@ typedef struct spi_description
     uint32_t speed;
 }spi_description;
 
-
 // constructor
 mcp2515_dev* new_mcp2515_dev(char *,uint8_t,uint32_t);
 

@@ -22,12 +22,38 @@ mcp2515_dev* new_mcp2515_dev(char *spidev_path,uint8_t mode,uint32_t speed)
     return mcp2515_device;
 }
 */
+int spi_send(mcp2515_dev *mcp2515_device, uint8_t *data,int length)
+{
+    int ret = 0;
+
+    uint8_t* tx_buffer = (uint8_t*)malloc(sizeof(uint8_t)*length);
+    memcpy(tx_buffer, data, sizeof(uint8_t)*length);
+
+    uint8_t* rx_buffer = (uint8_t*)malloc(sizeof(uint8_t)*length);
+    memset(rx_buffer,0,sizeof(uint8_t)*length);
+
+    struct spi_ioc_transfer tr = 
+    {
+        .tx_buf = (unsigned long)tx_buffer,
+		.rx_buf = (unsigned long)rx_buffer,
+		.len = length,
+		.delay_usecs = 20,
+		.speed_hz = mcp2515_device->spi_dev->speed,
+		.bits_per_word = mcp2515_device->spi_dev->bits,
+    };
+
+    ret = ioctl(mcp2515_device->spi_dev->fd, SPI_IOC_MESSAGE(1), &tr);
+	if (ret < 1)
+    	printf("can't send spi message");
+        return -1;
+
+    return 0;
+}
 
 int spi_initial(mcp2515_dev *mcp2515_device)
 {
     // read or set result
     int ret = 0;
-
     
     // open device
     int fd = open(mcp2515_device->spi_dev->spidev_path, O_RDWR); 
@@ -68,35 +94,32 @@ int mcp2515_initial(mcp2515_dev *mcp2515_device)
 
     // Send RESET SPI cmd
     uint8_t data = MCP2515_SPI_RESET;
-    mcp2515_send(mcp2515_device, &data, sizeof(data)/sizeof(uint8_t));
+    spi_send(mcp2515_device, &data, sizeof(data)/sizeof(uint8_t));
 
     return 0;
 }
 
-int mcp2515_send(mcp2515_dev *mcp2515_device, uint8_t *data,int length)
+int mcp2515_write_register(mcp2515_dev *mcp2515_device, uint8_t register_address, uint8_t *data, int8_t data_length)
 {
-    int ret = 0;
+    // tx_buffer length = write_cmd + register_address + data_length
+    uint8_t *tx_buffer = (uint8_t*)malloc(sizeof(uint8_t) * (data_length + 2));
+    tx_buffer[0] = MCP2515_SPI_WRITE;
+    tx_buffer[1] = register_address;
+    memcpy(tx_buffer + 2, data, sizeof(uint8_t) * data_length);
+    // send
+    return spi_send(mcp2515_device,tx_buffer,data_length);
+}
 
-    uint8_t* tx_buffer = (uint8_t*)malloc(sizeof(uint8_t)*length);
-    memcpy(tx_buffer, data, sizeof(uint8_t)*length);
-
-    uint8_t* rx_buffer = (uint8_t*)malloc(sizeof(uint8_t)*length);
-    memset(rx_buffer,0,sizeof(uint8_t)*length);
-
-    struct spi_ioc_transfer tr = 
-    {
-        .tx_buf = (unsigned long)tx_buffer,
-		.rx_buf = (unsigned long)rx_buffer,
-		.len = 1,
-		.delay_usecs = 20,
-		.speed_hz = mcp2515_device->spi_dev->speed,
-		.bits_per_word = mcp2515_device->spi_dev->bits,
-    };
-
-    ret = ioctl(mcp2515_device->spi_dev->fd, SPI_IOC_MESSAGE(1), &tr);
-	if (ret < 1)
-    	printf("can't send spi message");
-        return -1;
-
+int mcp2515_read_register(mcp2515_dev *mcp2515_device, uint8_t register_address, uint8_t *data, int8_t data_length)
+{
+    /*
+    // tx_buffer length = write_cmd + register_address + data_length
+    uint8_t *tx_buffer = (uint8_t*)malloc(sizeof(uint8_t) * (data_length + 2));
+    tx_buffer[0] = MCP2515_SPI_WRITE;
+    tx_buffer[1] = register_address;
+    memcpy(tx_buffer + 2, data, data_length * sizeof(uint8_t));
+    // send
+    return spi_send(mcp2515_device,tx_buffer,data_length);
+    */
     return 0;
 }
