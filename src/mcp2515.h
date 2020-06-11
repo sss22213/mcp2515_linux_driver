@@ -11,6 +11,7 @@
 #include <linux/types.h>
 #include <linux/spi/spidev.h>
 
+/***** Register Map *******/
 // TX Buffer Control REG
 #define TXB0CTRL 0x30
 #define TXB1CTRL 0x40
@@ -134,14 +135,19 @@
 #define MCP2515_SPI_RX_STATUS 0xB0
 #define MCP2515_SPI_BIT_MODIFY 0x05
 
+/**************************************************/
+
+/**************** mcp2515 mode ********************/
+typedef enum{
+    Normal = 0x60,
+    Sleep = 0x20,
+    Loopback = 0x40,
+    Listen = 0x60,
+    Configuration = 0x80,
+}mcp2515_mode;
+
 typedef struct mcp2515_dev mcp2515_dev;
 typedef struct spi_description spi_description;
-
-// spi set
-/*
-static uint8_t mode = 3;
-static uint8_t bits = 8;
-*/
 
 // defined mcp2515 feature
 typedef struct mcp2515_dev
@@ -164,10 +170,16 @@ typedef struct spi_description
 // constructor
 mcp2515_dev* new_mcp2515_dev(char *,uint8_t,uint32_t);
 
-// open and initial mcp2515
+// Open and initial mcp2515
 int mcp2515_initial(mcp2515_dev*);
 
 // Send Data to MCP2515
-int mcp2515_send(mcp2515_dev*,uint8_t*,int);
+int mcp2515_write_register(mcp2515_dev*,uint8_t,uint8_t*,int8_t);
+
+// Receive Data from MCP2515
+int mcp2515_read_register(mcp2515_dev*, uint8_t, uint8_t);
+
+// MCP2515 mode setting
+int mcp2515_set_mode(mcp2515_dev*);
 
 #endif
