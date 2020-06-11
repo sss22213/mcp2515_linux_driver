@@ -103,11 +103,17 @@ int spi_initial(mcp2515_dev *mcp2515_device)
 int mcp2515_initial(mcp2515_dev *mcp2515_device)
 {
     int ret = 0;
+    uint8_t data = 0;
     ret = spi_initial(mcp2515_device);
     if(ret!=0)return ret;    
     // Send RESET SPI cmd
-    uint8_t data = MCP2515_SPI_RESET;
+    data = MCP2515_SPI_RESET;
     spi_send(mcp2515_device, &data, sizeof(data)/sizeof(uint8_t));
+    // Clear Tx buffer
+    data = 0;
+    mcp2515_write_register(mcp2515_device, TXRTSCTRL, &data,sizeof(data)/sizeof(uint8_t));
+    // No prescaler
+    mcp2515_write_register(mcp2515_device, CANCTRL, &data,sizeof(data)/sizeof(uint8_t));
     return 0;
 }
 
@@ -143,7 +149,19 @@ uint8_t mcp2515_read_register(mcp2515_dev *mcp2515_device, uint8_t register_addr
     return result;
 }
 
+uint8_t mcp2515_read_status(mcp2515_dev *mcp2515_device)
+{
+    uint8_t read_status[2] = {MCP2515_SPI_READ_STATUS,0xFF}; 
+    uint8_t *spi_ret = spi_send(mcp2515_device, read_status, 2);
+    uint8_t result = spi_ret[1];
+    free(spi_ret);
+    return result;
+}
 
+int mcp2515_modify_bit(mcp2515_dev *mcp2515_device)
+{
+
+} 
 int mcp2515_set_mode(mcp2515_dev *mcp2515_device)
 {
     int write_flag = 0;
@@ -159,35 +177,23 @@ int mcp2515_set_mode(mcp2515_dev *mcp2515_device)
     {
         sleep(1);
         uint8_t ret = mcp2515_read_register(mcp2515_device,CANSTAT,1);
+        // write fail
         if(ret != mcp2515_device->mode)
         {
             printf("wait write mode");
         }
         else
         {
-
-        }
-    }
-    
-    
-    
-    /*
-    // verifty mode
-    while(write_flag == 0)
-    {
-        ret = mcp2515_read_register(mcp2515_device,CANSTAT,1);
-        if(ret != mode)
-        {
-            mcp2515_write_register(mcp2515_device, CANCTRL, &mode, 1);
-            //mcp2515_read_register(mcp2515_device,CANCTRL,1);
-            sleep(1);
-        }
-        else
-        {
             write_flag = 1;
         }
     }
-    */
-    
+    return 0;
+}
+
+int mcp2515_send_data(mcp2515_dev *mcp2515_device, uint8_t* data)
+{
+    uint8_t *ptr_read_status = mcp2515_read_status(mcp2515_device);
+    uint8_t read_status = ptr_read_status[1];
+
     return 0;
 }

@@ -11,6 +11,7 @@ int main()
     ret = mcp2515_read_register(mcp2515_device,CANSTAT,1);
     */
     mcp2515_set_mode(mcp2515_device);
+    printf("%x",mcp2515_read_status(mcp2515_device));
     //printf("%d",ret);
     return 0;
 }
