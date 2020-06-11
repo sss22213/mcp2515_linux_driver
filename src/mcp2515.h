@@ -82,7 +82,7 @@
 #define RXF4EID0 (RXF3EID8 + 0x01)
 #define RXF5EID0 (RXF4EID8 + 0x01)
 
-// MASK n STANDARD IDENTIFIER REGISTER HIGH 
+// MASK n STANDARD IDENTIFIER REGISTER HIGH
 #define RXM0SIDH 0x20
 #define RXM1SIDH 0x24
 
@@ -146,6 +146,12 @@ typedef enum{
     Configuration = 0x80,
 }mcp2515_mode;
 
+/*************** spi error **************************/
+typedef enum
+{
+    Open_err = 0x00,
+}spi_error;
+
 typedef struct mcp2515_dev mcp2515_dev;
 typedef struct spi_description spi_description;
 
@@ -177,7 +183,7 @@ int mcp2515_initial(mcp2515_dev*);
 int mcp2515_write_register(mcp2515_dev*,uint8_t,uint8_t*,int8_t);
 
 // Receive Data from MCP2515
-int mcp2515_read_register(mcp2515_dev*, uint8_t, uint8_t);
+uint8_t mcp2515_read_register(mcp2515_dev*, uint8_t, uint8_t);
 
 // MCP2515 mode setting
 int mcp2515_set_mode(mcp2515_dev*);
