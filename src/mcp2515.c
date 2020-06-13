@@ -109,9 +109,27 @@ int mcp2515_initial(mcp2515_dev *mcp2515_device)
     // Send RESET SPI cmd
     data = MCP2515_SPI_RESET;
     spi_send(mcp2515_device, &data, sizeof(data)/sizeof(uint8_t));
+    sleep(0.01);
+    // debug: 500kbps
+    // Set Speed
+    uint8_t speed_1 = 0x00;
+    uint8_t speed_2 = 0x89;
+    uint8_t speed_3 = 0x02;
+    mcp2515_write_register(mcp2515_device, CNF1, &speed_1, 1);
+    mcp2515_write_register(mcp2515_device, CNF2, &speed_2, 1);
+    mcp2515_write_register(mcp2515_device, CNF3, &speed_3, 1);
     // Clear Tx buffer
     data = 0;
     mcp2515_write_register(mcp2515_device, TXRTSCTRL, &data,sizeof(data)/sizeof(uint8_t));
+    
+    // clear Rx buffer
+    mcp2515_write_register(mcp2515_device, RXM0SIDH, &data,sizeof(data)/sizeof(uint8_t));
+    //
+    mcp2515_write_register(mcp2515_device, RXM0SIDL, &data,sizeof(data)/sizeof(uint8_t));
+    //
+    data = 0x0F;
+    mcp2515_write_register(mcp2515_device, BFPCTRL, &data,sizeof(data)/sizeof(uint8_t));
+    
     // No prescaler
     mcp2515_write_register(mcp2515_device, CANCTRL, &data,sizeof(data)/sizeof(uint8_t));
     return 0;
@@ -201,20 +219,39 @@ int mcp2515_set_mode(mcp2515_dev *mcp2515_device)
 
 int mcp2515_send_data(mcp2515_dev *mcp2515_device, uint8_t id, uint8_t* data, uint8_t data_length)
 {
+    // Read Status
+    uint8_t ret = mcp2515_read_status(mcp2515_device);
+    uint8_t address_offset = 0x00;
+    if(!(ret & 2))
+    {
+        address_offset = 0;
+    }
+    else if(!(ret & 4))
+    {
+        address_offset = 0x10;
+    }
+    else if(!(ret & 6))
+    {
+        address_offset = 0x20;
+    }
+    // printf("%x",ret);
+    // Send data
     uint8_t header[5] = {id>>3, (id & 0x07) <<5, 0, 0, data_length};
     uint8_t *ptr_header = header;
-    uint8_t *raw_data = (uint8_t*)malloc(sizeof(uint8_t)*(data_length)+5);
+    // raw
+    uint8_t *raw_data = (uint8_t*)malloc(sizeof(uint8_t)*(data_length + 5));
     memcpy(raw_data, ptr_header,5);
     memcpy(raw_data + 5, data, data_length);
-    /*
-    for(int idx = 0; idx < ((int8_t)data_length + 5); ++idx)
+    mcp2515_write_register(mcp2515_device, TXB0SIDH + address_offset, raw_data, data_length + 5);
+    //
+    mcp2515_modify_bit(mcp2515_device, TXB0CTRL + address_offset, 0x08, 0x08, 1);
+    //sleep(1);
+    uint8_t status = mcp2515_read_register(mcp2515_device, TXB0CTRL, 1);
+    while( (status & 0x08) == 0x08 )
     {
-        printf("%x|",raw_data[idx]);
+        printf("Wait Transmit: %x\n",status);
+        sleep(1);
     }
-    printf("\n");
-    */
-    mcp2515_write_register(mcp2515_device, TXB0SIDH, raw_data, data_length +5);
-    mcp2515_modify_bit(mcp2515_device, TXB0CTRL, 0x08, 0x08, 1);
     free(raw_data);
     return 0;
 }
