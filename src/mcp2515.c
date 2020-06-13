@@ -199,9 +199,22 @@ int mcp2515_set_mode(mcp2515_dev *mcp2515_device)
     return 0;
 }
 
-int mcp2515_send_data(mcp2515_dev *mcp2515_device, uint8_t* data)
+int mcp2515_send_data(mcp2515_dev *mcp2515_device, uint8_t id, uint8_t* data, uint8_t data_length)
 {
-    //uint8_t *ptr_read_status = mcp2515_read_status(mcp2515_device);
-    //uint8_t read_status = ptr_read_status[1];
+    uint8_t header[5] = {id>>3, (id & 0x07) <<5, 0, 0, data_length};
+    uint8_t *ptr_header = header;
+    uint8_t *raw_data = (uint8_t*)malloc(sizeof(uint8_t)*(data_length)+5);
+    memcpy(raw_data, ptr_header,5);
+    memcpy(raw_data + 5, data, data_length);
+    /*
+    for(int idx = 0; idx < ((int8_t)data_length + 5); ++idx)
+    {
+        printf("%x|",raw_data[idx]);
+    }
+    printf("\n");
+    */
+    mcp2515_write_register(mcp2515_device, TXB0SIDH, raw_data, data_length +5);
+    mcp2515_modify_bit(mcp2515_device, TXB0CTRL, 0x08, 0x08, 1);
+    free(raw_data);
     return 0;
 }

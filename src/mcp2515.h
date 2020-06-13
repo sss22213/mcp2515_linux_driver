@@ -189,12 +189,12 @@ uint8_t mcp2515_read_register(mcp2515_dev*, uint8_t, uint8_t);
 int mcp2515_set_mode(mcp2515_dev*);
 
 // MCP2515 send data (fix 8 bytes)
-int mcp2515_send_data(mcp2515_dev*, uint8_t*);
+int mcp2515_send_data(mcp2515_dev*, uint8_t, uint8_t*, uint8_t);
 
 //
 uint8_t mcp2515_read_status(mcp2515_dev*);
 
-//
+// mcp2515 bit modify
 int mcp2515_modify_bit(mcp2515_dev*, uint8_t, uint8_t, uint8_t, uint8_t);
 
 #endif
