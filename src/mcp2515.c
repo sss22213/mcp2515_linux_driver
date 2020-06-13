@@ -160,7 +160,7 @@ uint8_t mcp2515_read_status(mcp2515_dev *mcp2515_device)
 
 int mcp2515_modify_bit(mcp2515_dev *mcp2515_device)
 {
-
+    
 } 
 int mcp2515_set_mode(mcp2515_dev *mcp2515_device)
 {
