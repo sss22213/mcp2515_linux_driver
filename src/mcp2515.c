@@ -160,9 +160,6 @@ uint8_t mcp2515_read_status(mcp2515_dev *mcp2515_device)
 
 int mcp2515_modify_bit(mcp2515_dev *mcp2515_device, uint8_t register_address, uint8_t mask, uint8_t data, uint8_t data_length)
 {
-<<<<<<< HEAD
-    
-=======
     uint8_t *tx_buffer = (uint8_t*)malloc(sizeof(uint8_t)*(data_length + 3));
     tx_buffer[0] = MCP2515_SPI_BIT_MODIFY;
     tx_buffer[1] = register_address;
@@ -173,7 +170,6 @@ int mcp2515_modify_bit(mcp2515_dev *mcp2515_device, uint8_t register_address, ui
     free(tx_buffer);
     free(rx_data);
     return 0;
->>>>>>> 34f0da2632f5358a2c22321d2b06367fbc1eb49a
 } 
 int mcp2515_set_mode(mcp2515_dev *mcp2515_device)
 {
