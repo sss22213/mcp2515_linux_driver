@@ -138,7 +138,8 @@
 #define MCP2515_SPI_RX_STATUS 0xB0
 #define MCP2515_SPI_BIT_MODIFY 0x05
 
-/**************************************************/
+/*********************can speed**********************/
+#define can_500kpbs 0x008902 //CF1,CF2,CF3
 
 /**************** mcp2515 mode ********************/
 typedef enum{
@@ -199,5 +200,8 @@ uint8_t mcp2515_read_status(mcp2515_dev*);
 
 // mcp2515 bit modify
 int mcp2515_modify_bit(mcp2515_dev*, uint8_t, uint8_t, uint8_t, uint8_t);
+
+// mcp2515 speed select
+int mcp2515_can_speed(mcp2515_dev*, uint32_t);
 
 #endif

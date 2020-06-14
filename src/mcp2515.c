@@ -112,12 +112,15 @@ int mcp2515_initial(mcp2515_dev *mcp2515_device)
     sleep(0.01);
     // debug: 500kbps
     // Set Speed
+    /*
     uint8_t speed_1 = 0x00;
     uint8_t speed_2 = 0x89;
     uint8_t speed_3 = 0x02;
     mcp2515_write_register(mcp2515_device, CNF1, &speed_1, 1);
     mcp2515_write_register(mcp2515_device, CNF2, &speed_2, 1);
     mcp2515_write_register(mcp2515_device, CNF2, &speed_3, 1);
+    */
+    //uint32_t can_speed = can_500kpbs
     // Clear Tx buffer
     data = 0;
     mcp2515_write_register(mcp2515_device, TXRTSCTRL, &data,1);
@@ -133,6 +136,17 @@ int mcp2515_initial(mcp2515_dev *mcp2515_device)
     // No prescaler
     data = 0;
     mcp2515_write_register(mcp2515_device, CANCTRL, &data,1);
+    return 0;
+}
+
+int mcp2515_can_speed(mcp2515_dev *mcp2515_device, uint32_t speed)
+{
+    uint8_t speed_1 = (speed >> 16) & 0xFF;
+    uint8_t speed_2 = (speed >> 8) & 0xFF;
+    uint8_t speed_3 = (speed) & 0xFF;
+    mcp2515_write_register(mcp2515_device, CNF1, &speed_1, 1);
+    mcp2515_write_register(mcp2515_device, CNF2, &speed_2, 1);
+    mcp2515_write_register(mcp2515_device, CNF2, &speed_3, 1);
     return 0;
 }
 
