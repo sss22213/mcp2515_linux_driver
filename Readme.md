@@ -5,6 +5,8 @@
 - use linux user space spi api
 - support arm,arm64,x86_64
 - test on jetson nvidia nano
+- default: 500kbps
+- default: Normal Mode
 
 ## Usage
 
