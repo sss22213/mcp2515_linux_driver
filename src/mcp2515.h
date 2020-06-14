@@ -142,7 +142,7 @@
 
 /**************** mcp2515 mode ********************/
 typedef enum{
-    Normal = 0x60,
+    Normal = 0x00,
     Sleep = 0x20,
     Loopback = 0x40,
     Listen = 0x60,

@@ -117,21 +117,22 @@ int mcp2515_initial(mcp2515_dev *mcp2515_device)
     uint8_t speed_3 = 0x02;
     mcp2515_write_register(mcp2515_device, CNF1, &speed_1, 1);
     mcp2515_write_register(mcp2515_device, CNF2, &speed_2, 1);
-    mcp2515_write_register(mcp2515_device, CNF3, &speed_3, 1);
+    mcp2515_write_register(mcp2515_device, CNF2, &speed_3, 1);
     // Clear Tx buffer
     data = 0;
-    mcp2515_write_register(mcp2515_device, TXRTSCTRL, &data,sizeof(data)/sizeof(uint8_t));
+    mcp2515_write_register(mcp2515_device, TXRTSCTRL, &data,1);
     
     // clear Rx buffer
-    mcp2515_write_register(mcp2515_device, RXM0SIDH, &data,sizeof(data)/sizeof(uint8_t));
+    mcp2515_write_register(mcp2515_device, RXM0SIDH, &data,1);
     //
-    mcp2515_write_register(mcp2515_device, RXM0SIDL, &data,sizeof(data)/sizeof(uint8_t));
+    mcp2515_write_register(mcp2515_device, RXM0SIDL, &data,1);
     //
     data = 0x0F;
-    mcp2515_write_register(mcp2515_device, BFPCTRL, &data,sizeof(data)/sizeof(uint8_t));
+    mcp2515_write_register(mcp2515_device, BFPCTRL, &data,1);
     
     // No prescaler
-    mcp2515_write_register(mcp2515_device, CANCTRL, &data,sizeof(data)/sizeof(uint8_t));
+    data = 0;
+    mcp2515_write_register(mcp2515_device, CANCTRL, &data,1);
     return 0;
 }
 
@@ -247,11 +248,13 @@ int mcp2515_send_data(mcp2515_dev *mcp2515_device, uint8_t id, uint8_t* data, ui
     mcp2515_modify_bit(mcp2515_device, TXB0CTRL + address_offset, 0x08, 0x08, 1);
     //sleep(1);
     uint8_t status = mcp2515_read_register(mcp2515_device, TXB0CTRL, 1);
+    
     while( (status & 0x08) == 0x08 )
     {
         printf("Wait Transmit: %x\n",status);
         sleep(1);
     }
+    
     free(raw_data);
     return 0;
 }
